@@ -2,4 +2,4 @@
 
 # Requirements
 - [tf_econ_data](https://forums.alliedmods.net/showthread.php?t=315011)
-- [dhooks](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589)
+- [dhooks (1.1)](https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589)
