@@ -32,6 +32,7 @@ char g_sNextBotMimicsThis[PLATFORM_MAX_PATH];
 char g_sSupposedToMimic[MAXPLAYERS+1][PLATFORM_MAX_PATH];
 bool g_bRenameRecord[MAXPLAYERS+1];
 bool g_bEnterCategoryName[MAXPLAYERS+1];
+bool ReloadKey[MAXPLAYERS+1] = false;
 
 // Admin Menu
 TopMenu g_hAdminMenu;
@@ -135,6 +136,23 @@ public Action Cmd_Record(int client, int args)
 	
 	DisplayCategoryMenu(client);
 	return Plugin_Handled;
+}
+
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	if(!IsPlayerAlive(client) && !IsFakeClient(client)) return Plugin_Continue;
+
+	if(buttons & IN_RELOAD) {
+		if(ReloadKey[client] == false) {
+			if(BotMimic_IsPlayerRecording(client)) DisplayRecordInProgressMenu(client);
+			else DisplayCategoryMenu(client);
+			ReloadKey[client] = true;
+		}
+	}
+	else {
+		ReloadKey[client] = false;
+	}
+	return Plugin_Continue;
 }
 
 public Action Cmd_StopRecord(int client, int args)
@@ -368,7 +386,10 @@ public int Menu_SelectCategory(Menu menu, MenuAction action, int param1, int par
 			Format(sTempName, sizeof(sTempName), "%d_%d", GetTime(), param1);
 			g_bPlayerRecordingFromMenu[param1] = true;
 			BotMimic_StartRecording(param1, sTempName, DEFAULT_CATEGORY);
-			DisplayRecordInProgressMenu(param1);
+			// DisplayRecordInProgressMenu(param1); // aaa
+			
+			PrintHintText(param1, "Recording...");
+			PrintToChat(param1, "[BotMimic] Type !stoprecord to stop recording.");
 		}
 		else if(StrEqual(info, "createcategory"))
 		{
@@ -488,7 +509,10 @@ public int Menu_SelectRecord(Menu menu, MenuAction action, int param1, int param
 			Format(sTempName, sizeof(sTempName), "%d_%d", GetTime(), param1);
 			g_bPlayerRecordingFromMenu[param1] = true;
 			BotMimic_StartRecording(param1, sTempName, g_sPlayerSelectedCategory[param1]);
-			DisplayRecordInProgressMenu(param1);
+			
+			PrintHintText(param1, "Recording...");
+			PrintToChat(param1, "[BotMimic] Type !stoprecord to stop recording.");
+			// DisplayRecordInProgressMenu(param1); // aaa
 		}
 		else
 		{
@@ -981,7 +1005,7 @@ void DisplayRecordInProgressMenu(int client)
 	
 	Menu hMenu = new Menu(Menu_HandleRecordProgress);
 	hMenu.SetTitle("Recording...");
-	hMenu.ExitButton = false;
+	hMenu.ExitButton = true;
 	
 	if(BotMimic_IsRecordingPaused(client))
 		hMenu.AddItem("resume", "Resume recording");
@@ -1041,8 +1065,8 @@ public int Menu_HandleRecordProgress(Menu menu, MenuAction action, int param1, i
 	}
 	else if (action == MenuAction_Cancel)
 	{
-		PrintHintText(param1, "Recording...");
-		PrintToChat(param1, "[BotMimic] Type !stoprecord to stop recording.");
+		// PrintHintText(param1, "Recording..."); // aaa
+		// PrintToChat(param1, "[BotMimic] Type !stoprecord to stop recording.");
 	}
 	else if (action == MenuAction_End)
 	{
@@ -1118,7 +1142,9 @@ public void TopMenu_NewRecord(TopMenu topmenu, TopMenuAction action, TopMenuObje
 		Format(sTempName, sizeof(sTempName), "%d_%d", GetTime(), param);
 		g_bPlayerRecordingFromMenu[param] = true;
 		BotMimic_StartRecording(param, sTempName, DEFAULT_CATEGORY);
-		DisplayRecordInProgressMenu(param);
+		// DisplayRecordInProgressMenu(param); // aaa
+		PrintHintText(param, "Recording...");
+		PrintToChat(param, "[BotMimic] Type !stoprecord to stop recording.");
 	}
 }
 
